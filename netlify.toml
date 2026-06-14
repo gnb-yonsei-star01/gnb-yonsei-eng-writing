@@ -1,0 +1,15 @@
+# netlify.toml ── 쓰기 앱 사이트 루트
+[functions]
+  directory = "netlify/functions"
+
+[[redirects]]
+  from = "/api"
+  to = "/.netlify/functions/proxy"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/proxy"
+  status = 200
+  force = true
