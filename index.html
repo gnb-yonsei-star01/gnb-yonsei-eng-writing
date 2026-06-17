@@ -11,7 +11,7 @@
 })();
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GnB 연세스타 · 별이랑 영어 글쓰기 (v1.8)</title>
+<title>GnB 연세스타 · 별이랑 영어 글쓰기 (v1.9 · 프록시)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Lora:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
@@ -334,7 +334,7 @@
 
 <script>
 /* =======================================================================
-   GnB 연세스타 · 영어 쓰기(WRITING) AI 교정 앱 (프로토타입 v1.8)
+   GnB 연세스타 · 영어 쓰기(WRITING) AI 교정 앱 (프로토타입 v1.9 · Netlify 프록시)
    - 입력: 학생이 직접 타이핑 (음성 X)
    - 교정 엔진: "별이" 글쓰기 페르소나 + Anthropic API
    - 3개 모듈:
@@ -352,8 +352,11 @@ const $ = id => document.getElementById(id);
    ★ 스피킹 앱과 같은 스프레드시트/GAS를 쓰면 아래 URL 그대로 두세요.
      비워두면 데모 모드: 내장 문항 + Anthropic 직접 호출로 즉시 동작합니다. */
 const CONFIG = {
-  GAS_URL: "/api"   // 예: "https://script.google.com/macros/s/AKfy.../exec"
+  // ▼ 프록시(Netlify) 버전: 구글로 직접 안 나가고 우리 /api 로만 통신 (자녀보호 앱 차단 우회)
+  //   실제 GAS 주소는 netlify/functions/proxy.js 안에 보관합니다.
+  GAS_URL: "/api"
 };
+// /api 도 백엔드로 인정 (그러지 않으면 백엔드 기능이 통째로 꺼짐 — 매뉴얼 4-2)
 const USE_BACKEND = /^https:\/\/script\.google\.com\//.test(CONFIG.GAS_URL) || CONFIG.GAS_URL.indexOf("/api")===0;
 
 /* ---------- 배경 별 ---------- */
@@ -1073,7 +1076,7 @@ function renderFeedback(d, item, studentText){
   // 별 보상
   let earned=0;
   if(!safetyOnly){
-    earned = wasRevision ? 3 : 1;   // 제출 1개 · 고쳐 쓰기 3개 (피드백 반영 행동에 보상)
+    earned = wasRevision ? 2 : 1;   // 제출 1개 · 고쳐 쓰기 2개 (한 문제 최대 3개)
     S.stars+=earned; S.sessionStars+=earned; renderStars(); saveProgress();
   }
 
@@ -1172,7 +1175,7 @@ function renderFeedback(d, item, studentText){
 
   const canRevise = !safetyOnly && !wasRevision && (d.feedback&&d.feedback.length>0);
   html+=`<div class="actions">
-      ${canRevise?`<button class="btn" style="margin:0;flex:1.4;background:linear-gradient(135deg,var(--gold-soft),var(--gold) 60%,var(--gold-deep))" id="reviseBtn">✍️ 고쳐 쓰기 ⭐×3</button>`:""}
+      ${canRevise?`<button class="btn" style="margin:0;flex:1.4;background:linear-gradient(135deg,var(--gold-soft),var(--gold) 60%,var(--gold-deep))" id="reviseBtn">✍️ 고쳐 쓰기 ⭐×2</button>`:""}
       <button class="btn ghost" style="margin:0;flex:1" id="retryBtn">↺ 다시 쓰기</button>
       <button class="btn ${canRevise?'ghost':''}" style="margin:0;flex:${canRevise?1:1.4}" id="nextBtn">다음 →</button>
     </div>`;
