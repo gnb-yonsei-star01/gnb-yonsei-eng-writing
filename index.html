@@ -11,7 +11,7 @@
 })();
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GnB 연세스타 · 별이랑 영어 글쓰기 (v2.1 · 프록시)</title>
+<title>GnB 연세스타 · 별이랑 영어 글쓰기 (v2.2 · 프록시)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Lora:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
@@ -334,7 +334,7 @@
 
 <script>
 /* =======================================================================
-   GnB 연세스타 · 영어 쓰기(WRITING) AI 교정 앱 (프로토타입 v2.1 · Netlify 프록시)
+   GnB 연세스타 · 영어 쓰기(WRITING) AI 교정 앱 (프로토타입 v2.2 · Netlify 프록시)
    - 입력: 학생이 직접 타이핑 (음성 X)
    - 교정 엔진: "별이" 글쓰기 페르소나 + Anthropic API
    - 3개 모듈:
@@ -1070,7 +1070,16 @@ function renderFeedback(d, item, studentText){
   const wasRevision = !!S.isRevision;
   const prevOverall = wasRevision ? S.prevOverall : null;
   // 고쳐 쓰기 보증: 이전 점수보다 낮아지지 않음 (서버도 동일 규칙)
-  if(wasRevision && overall!=null && prevOverall!=null && overall<prevOverall) overall=prevOverall;
+  // 마침표·대문자 위반이 있으면 고쳐쓰기 하한 보증을 적용하지 않음(서버와 동일 규칙)
+  function maDaeViolated(txt){
+    const t=(txt||"").trim(); if(!t) return false;
+    if(!/[.!?]["')\]]?\s*$/.test(t)) return true;
+    const ss=t.split(/(?<=[.!?])\s+/);
+    for(const s of ss){ const m=s.trim().match(/[A-Za-z]/); if(m && m[0]>='a' && m[0]<='z') return true; }
+    if(/(^|[^A-Za-z])i([^A-Za-z]|$)/.test(" "+t+" ")) return true;
+    return false;
+  }
+  if(wasRevision && overall!=null && prevOverall!=null && overall<prevOverall && !maDaeViolated(studentText)) overall=prevOverall;
   S.isRevision=false;
   if(!wasRevision){ S.prevText=studentText; S.prevOverall=overall; S.prevFeedback=(d.feedback||[]); S.prevItem=item; }
 
